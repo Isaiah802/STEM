@@ -1,17 +1,21 @@
-import os
 import sqlite3
 import json
+import serial  # You will need pyserial to read from the serial port
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
 import plotly.graph_objs as go
-import pandas as pd
-import random
 from datetime import datetime
+import time
 
 app = Flask(__name__)
 socketio = SocketIO(app)
 
 DATABASE = 'sensor_data.db'
+SERIAL_PORT = 'COM3'  # Update this to match the serial port for your Arduino
+BAUD_RATE = 9600
+
+# Set up the serial connection to read data from Arduino
+ser = serial.Serial(SERIAL_PORT, BAUD_RATE)
 
 # Route for the main page
 @app.route('/')
@@ -59,7 +63,7 @@ def generate_plot(data):
 
     for entry in data:
         timestamps.append(entry['timestamp'])
-        sensor_data.append(entry['raw_data'])  # Assuming raw_data contains the actual values to plot
+        sensor_data.append(json.loads(entry['raw_data'])['value'])  # Extracting 'value' from the raw_data JSON
 
     # Plotly Graph
     trace = go.Scatter(
@@ -90,28 +94,38 @@ def handle_get_data():
     # Emit the plot to the frontend
     emit('update_graph', {'plot_html': plot_html})
 
-# Background task for simulating real-time data updates
+# Background task for reading data from Arduino and inserting into database
 def background_task():
     while True:
-        # Simulate new data arrival by generating random data (for testing purposes)
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        raw_data = random.randint(10, 100)  # Example raw data
-        
-        # Save this simulated data to the database
-        conn = sqlite3.connect(DATABASE)
-        cursor = conn.cursor()
-        
-        cursor.execute("""
-        INSERT INTO TestResults (sensor_id, test_id, timestamp, raw_data)
-        VALUES (?, ?, ?, ?)
-        """, (1, 1, timestamp, json.dumps({'value': raw_data})))  # Example sensor_id=1, test_id=1
-        
-        conn.commit()
-        conn.close()
+        # Read a line of data from the serial port
+        if ser.in_waiting > 0:
+            data_line = ser.readline().decode('utf-8').strip()  # Read and decode the line from Arduino
+            sensor_values = data_line.split(',')  # Split the data into separate sensor values
 
-        socketio.sleep(5)  # Sleep for 5 seconds before generating the next data
+            # Ensure there are exactly 4 sensor values (one for each sensor)
+            if len(sensor_values) == 4:
+                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-# Start the background task to simulate data
+                # Insert this data into the database for each sensor
+                conn = sqlite3.connect(DATABASE)
+                cursor = conn.cursor()
+
+                for i, value in enumerate(sensor_values, start=1):  # Sensor IDs 1-4
+                    raw_data = json.dumps({'value': int(value)})  # Store the sensor value in JSON format
+                    
+                    # Assuming test_id = 1 for simplicity, adjust if needed
+                    cursor.execute("""
+                    INSERT INTO TestResults (sensor_id, test_id, timestamp, raw_data)
+                    VALUES (?, ?, ?, ?)
+                    """, (i, 1, timestamp, raw_data))
+
+                conn.commit()
+                conn.close()
+
+        # Wait for a short period (to avoid overloading the CPU)
+        socketio.sleep(0.1)
+
+# Start the background task to read data from Arduino
 @socketio.on('connect')
 def handle_connect():
     # Start background task when a user connects

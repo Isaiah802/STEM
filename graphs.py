@@ -52,15 +52,15 @@ def plot_scatter(sensor_id1, test_id1, sensor_id2, test_id2):
     conn = sqlite3.connect('sensor_data.db')
     cursor = conn.cursor()
 
-    # Fetch data for sensor 1
+    # Fetch data for sensor 1 with timestamps
     cursor.execute("""
-    SELECT raw_data FROM TestResults WHERE sensor_id = ? AND test_id = ?
+    SELECT timestamp, raw_data FROM TestResults WHERE sensor_id = ? AND test_id = ?
     """, (sensor_id1, test_id1))
     data1 = cursor.fetchall()
 
-    # Fetch data for sensor 2
+    # Fetch data for sensor 2 with timestamps
     cursor.execute("""
-    SELECT raw_data FROM TestResults WHERE sensor_id = ? AND test_id = ?
+    SELECT timestamp, raw_data FROM TestResults WHERE sensor_id = ? AND test_id = ?
     """, (sensor_id2, test_id2))
     data2 = cursor.fetchall()
 
@@ -68,9 +68,20 @@ def plot_scatter(sensor_id1, test_id1, sensor_id2, test_id2):
         print("No data found for one or both sensors.")
         return
 
-    # Extract raw_data from both sensors (raw_data is already a float)
-    raw_data1 = [entry[0] for entry in data1]
-    raw_data2 = [entry[0] for entry in data2]
+    # Convert data to dictionaries based on timestamp for easy matching
+    data1_dict = {entry[0]: entry[1] for entry in data1}
+    data2_dict = {entry[0]: entry[1] for entry in data2}
+
+    # Find common timestamps for both sensors
+    common_timestamps = set(data1_dict.keys()).intersection(data2_dict.keys())
+
+    if not common_timestamps:
+        print("No common timestamps found between the two sensors.")
+        return
+
+    # Extract matching data points based on common timestamps
+    raw_data1 = [data1_dict[ts] for ts in common_timestamps]
+    raw_data2 = [data2_dict[ts] for ts in common_timestamps]
 
     # Plot the scatter graph
     plt.scatter(raw_data1, raw_data2, label=f'Sensor {sensor_id1} vs Sensor {sensor_id2}')
@@ -194,3 +205,8 @@ if __name__ == '__main__':
 # python graphs.py boxplot
 
 #python graphs.py bar_chart
+
+
+#python graphs.py time_series
+#python graphs.py scatter --sensor_id1 1 --sensor_id2 2 --test_id1 1 --test_id2 2
+#python graphs.py boxplot

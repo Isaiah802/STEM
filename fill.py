@@ -53,16 +53,25 @@ try:
     base_time = datetime.now()
 
     # Insert sample data into TestResults table (20 values for each sensor, for test_id = 1)
+    # Insert sample data into CleanedData table (20 values per sensor)
     for sensor_id in sensor_ids:  # Loop over each of the 4 sensors
-        for i in range(20):  # Generate 20 values per sensor
-            timestamp = generate_incrementing_timestamp(base_time)
-            base_time = base_time + timedelta(seconds=1)  # Increment the base_time by 1 second
-            raw_data = generate_random_voltage()  # Voltage data for the piezoelectric sensor (single value)
-
+        for i in range(20):  # Generate 20 cleaned data values for each sensor
+            # Fetch the correct result_id for the current sensor and test_id
             cursor.execute('''
-            INSERT INTO TestResults (sensor_id, test_id, timestamp, raw_data)
-            VALUES (?, ?, ?, ?)
-            ''', (sensor_id, test_id, timestamp, raw_data))  # Store raw_data as REAL (no need for json.dumps)
+            SELECT result_id FROM TestResults
+            WHERE sensor_id = ? AND test_id = ? ORDER BY timestamp LIMIT 1
+            ''', (sensor_id, test_id))
+            result_id = cursor.fetchone()[0]  # Get the result_id for the current sensor
+
+            # Cleaned data would be a slightly modified version of raw data (for demonstration purposes)
+            cleaned_data = generate_random_voltage()  # Cleaned data (random voltage value again)
+
+            cleaned_by = f'User{sensor_id}'  # Simulating user cleanup by sensor ID
+            
+            cursor.execute('''
+            INSERT INTO CleanedData (result_id, cleaned_data, cleaned_by)
+            VALUES (?, ?, ?)
+            ''', (result_id, cleaned_data, cleaned_by))  # Store cleaned_data as REAL (no need for json.dumps)
 
     # Insert sample data into CleanedData table (20 values per sensor)
     for sensor_id in sensor_ids:  # Loop over each of the 4 sensors

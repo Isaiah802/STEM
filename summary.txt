@@ -1,0 +1,175 @@
+Project Overview: Low-Cost Structural Health Monitoring (SHM) Using Recycled Piezoelectric Sensors
+1. Project Context and Scope
+Project Title: Low-Cost SHM Using Recycled Piezoelectric Sensors
+Project Duration: 6 Weeks
+Leadership: 2 Head Researchers (Officers)
+
+Objective:
+The project aims to create a low-cost structural health monitoring (SHM) system using salvaged piezoelectric sensors to detect mechanical stress and damage in structures. The recycled sensors, typically from old electronics, are being tested for their effectiveness in monitoring structural integrity by measuring voltage changes when subjected to stress.
+
+Key Goals:
+Feasibility Testing: Determine if recycled piezoelectric sensors can provide reliable data for structural monitoring.
+
+Data Analysis: Analyze sensor data to understand how effectively the sensors detect stress, strain, and potential damage.
+
+Prototype Creation: Develop a working SHM prototype and present the findings, with the aim of attracting further research or funding.
+
+2. Team Structure and Roles
+Head Researchers (Project Leads):
+Oversee the project, ensuring timely progress and resolving technical challenges.
+
+Actively assist with sensor setup, testing, and analysis.
+
+Assist with preparing the final report and presentation.
+
+Data Analysts:
+Collect and log sensor data.
+
+Analyze trends, correlations, and data anomalies, generating charts/statistics.
+
+Identify key patterns in stress detection.
+
+Prototype Testers / Assemblers:
+Source materials for the prototype.
+
+Assemble test structures with piezoelectric sensors attached.
+
+Conduct mechanical testing (e.g., applying stress or vibrations) and capture data from the sensors.
+
+Research Reporters:
+Document methodology, research findings, and progress.
+
+Prepare summaries and visual aids for final presentations.
+
+3. Timeline and Milestones
+Weeks 1 & 2: Planning and gathering
+
+Define project goals, assign roles, and conduct background research.
+
+Salvage materials for sensor and other prototype components.
+
+Week 3: Preparation & assembly
+
+Assemble prototypes and set up basic circuits (Arduino/multimeter).
+
+Begin testing sensor voltage output under different stress conditions.
+
+Week 4: Prototype testing
+
+Attach sensors to mechanical test structures (e.g., 3D-printed beam or bridge).
+
+Perform small-scale stress testing (e.g., apply weights, bending, vibrations).
+
+Record sensor data for different load conditions.
+
+Week 5: Data and report assembly
+
+Analyze data using Python/Excel to identify trends (voltage changes before failure, stress thresholds).
+
+Prepare graphs, tables, and statistical summaries of findings.
+
+Week 6: Data analysis and final report
+
+Complete the final report and prepare a presentation.
+
+Verify findings with advisors and look for opportunities to publish.
+
+4. Core Data Collection and Visualization Tool
+SQLite Database (sensor_data.db):
+The core database stores sensor readings. It consists of the following table:
+
+TestResults Table:
+
+sensor_id: Unique identifier for the sensor.
+
+test_id: Identifier for the specific test.
+
+timestamp: Date and time when the data was recorded.
+
+raw_data: Voltage reading from the sensor (float).
+
+Visualization Tool (Python Script):
+The Python script (graphs.py) interacts with the SQLite database to fetch sensor data and generate visualizations.
+
+Matplotlib is used to create plots (e.g., time-series, scatter plots, histograms, and boxplots).
+
+SQLite3 is used to query and fetch sensor data.
+
+argparse allows users to specify which type of graph to generate and which sensor/test data to visualize.
+
+Graph Types:
+Time-Series Plot: Displays how the sensor’s voltage varies over time, helping identify trends or anomalies during the test.
+
+Scatter Plot: Compares voltage readings from two different sensors, helping determine correlation between their readings.
+
+Histogram: Shows the frequency distribution of raw data, allowing for insight into the spread of sensor values.
+
+Boxplot: Visualizes the spread, quartiles, and outliers in sensor data, providing a clear statistical overview of the data.
+
+5. Workflow and How It Works
+5.1. Data Collection and Database Queries:
+The script connects to the sensor_data.db SQLite database and queries the TestResults table using provided sensor and test IDs.
+
+The data is fetched and sorted chronologically to ensure it is in proper order for visualization.
+
+5.2. Plotting with Matplotlib:
+Backend Configuration: The script uses Matplotlib to generate high-quality plots. These plots are saved as PNG images, each with a timestamp for easy tracking.
+
+Plot Types:
+
+Time-Series Plot: The x-axis represents timestamps, and the y-axis represents sensor voltage, showing trends over time.
+
+Scatter Plot: Plots the raw data of two sensors against each other to visualize their correlation.
+
+Histogram: Displays the frequency distribution of the sensor’s voltage readings.
+
+Boxplot: Visualizes statistical features like the median, quartiles, and outliers in the data.
+
+5.3. Command-Line Interface (CLI):
+The script uses argparse to handle user input from the command line, allowing easy selection of graph types and sensor IDs:
+
+Example commands:
+
+python graphs.py time_series: Generates a time-series plot after asking for sensor and test IDs.
+
+python graphs.py scatter --sensor_id1 1 --sensor_id2 2 --test_id1 1 --test_id2 1: Creates a scatter plot comparing two sensors.
+
+python graphs.py histogram: Generates a histogram for the selected sensor and test ID.
+
+python graphs.py boxplot: Generates a boxplot for a given sensor and test ID.
+
+5.4. Saving and Displaying Plots:
+After each plot is generated, the script saves it as a PNG file and displays it using plt.show(), if applicable. This allows for both quick review and documentation of the data.
+
+6. Project Progress and Notes for Next Session
+Current Progress:
+You’ve implemented a tool to visualize sensor data through various plot types (time-series, scatter, histogram, and boxplot).
+
+The tool successfully retrieves data from the database and generates the corresponding visualizations.
+
+All graphs are saved with timestamps, making it easier to track and compare the data over time.
+
+Next Steps:
+Testing and Data Collection: Continue to gather data from the sensors during stress tests and analyze the results.
+
+Further Data Analysis: Use the visualizations to spot trends or anomalies in the voltage data that correlate with stress.
+
+Graph Enhancements: Consider adding additional analysis features, like smoothing or outlier removal, to refine the results.
+
+Reporting: Continue to document findings and prepare for the final presentation and report.
+
+7. Key Research Questions:
+How much voltage change occurs when stress is applied to the structure?
+
+Can recycled piezoelectric sensors reliably monitor structural integrity?
+
+How effectively can the system detect cracks or fatigue failures before they are visible?
+
+What limitations does the system have, and what improvements are needed?
+
+End Goals:
+Prototype: Build and test a working low-cost SHM prototype.
+
+Data: Analyze real-world sensor data to evaluate the system’s effectiveness in detecting stress and damage.
+
+Presentation: Prepare a technical report and presentation to share findings with potential stakeholders.

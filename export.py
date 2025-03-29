@@ -29,11 +29,11 @@ SELECT TR.*, S.sensor_type, T.test_type
 FROM TestResults TR
 JOIN Sensors S ON TR.sensor_id = S.sensor_id
 JOIN Tests T ON TR.test_id = T.test_id
-WHERE TR.bridge_id = ? AND T.test_type = ?;
+WHERE S.bridge = ? AND T.test_type = ?;
 """
 
-params = (1, 'Vibration')  # Replace with your bridge_id and test type
+params = ('Bridge 1', 'Vibration')  # Replace with your bridge name and test type
 export_to_csv(query, params, 'bridge_1_vibration_test_results.csv')
 
-# export_to_csv(query, (1, 'Weight'), 'bridge_1_weight_test_results.csv')
-# export_to_csv(query, (2, 'Vibration'), 'bridge_2_vibration_test_results.csv')
+# export_to_csv(query, ('Bridge 1', 'Weight'), 'bridge_1_weight_test_results.csv')
+# export_to_csv(query, ('Bridge 2', 'Vibration'), 'bridge_2_vibration_test_results.csv')
